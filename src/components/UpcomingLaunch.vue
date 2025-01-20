@@ -1,21 +1,28 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import gsap from "gsap";
+import {fetchNextLaunch} from "../spaceXApi.ts";
 
 const launch = ref();
 const countdown = ref(0);
 const countdownFormatted = ref({ hours: 0, minutes: 0, seconds: 0 });
 const rocketLaunched = ref(false);
+const launchExpired = ref(false);
 
 const fetchUpcomingLaunch = async () => {
-  try {
-    const response = await fetch("https://api.spacexdata.com/v5/launches/next");
-    launch.value = await response.json();
+  const data = await fetchNextLaunch();
+  if (data) {
+    launch.value = data;
     countdown.value = launch.value.date_unix - Math.floor(Date.now() / 1000);
-    startCountdown();
-    updateFormattedCountdown();
-  } catch (error) {
-    console.log("Erreur lors de la récupération des données.",error);
+    if (countdown.value > 0) {
+      startCountdown();
+      updateFormattedCountdown();
+    } else {
+      launchExpired.value = true;
+      countdownFormatted.value = { hours: 0, minutes: 0, seconds: 0 };
+    }
+  } else {
+    console.log("Aucune donnée de lancement trouvée ou erreur API");
   }
 };
 
@@ -64,11 +71,12 @@ onMounted(fetchUpcomingLaunch);
 
         <div class="mt-4">
           <p class="text-lg font-medium">Décompte :</p>
-          <div class="flex space-x-4 text-4xl font-bold">
+          <div v-if="!launchExpired" class="flex space-x-4 text-4xl font-bold">
             <span class="time">{{ countdownFormatted.hours }}h</span>
             <span class="time">{{ countdownFormatted.minutes }}m</span>
             <span class="time">{{ countdownFormatted.seconds }}s</span>
           </div>
+          <p v-else class="text-red-500 font-medium">Le lancement est déjà passé.</p>
         </div>
       </div>
 
