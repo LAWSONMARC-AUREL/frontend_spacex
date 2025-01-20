@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {defineProps, defineEmits} from "vue";
 import LaunchPlayer from "./LaunchPlayer.vue";
 
 const props = defineProps({
@@ -30,7 +29,7 @@ const close = () => {
         </button>
         <h2 class="text-xl font-bold">{{ launch.name }}</h2>
         <div class="overflow-auto max-h-96">
-          <img :src="launch.images[0]" alt="Pas d'image pour ce lancement" class="w-auto h-auto max-w-full">
+          <img :src="launch.image" alt="Pas d'image pour ce lancement" class="w-auto h-auto max-w-full">
         </div>
 
 
